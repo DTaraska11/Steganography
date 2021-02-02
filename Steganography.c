@@ -6,12 +6,6 @@
 #include <time.h>
 
 //Dominic Taraska
-//Tug76525
-//I was unable to get the program to work as intended due to some issues in my read_bmp function and possibly others as well.
-//Unfortunately I was unable to solve these in time.
-
-
-
 
 
 #define HEADER_SIZE 54
@@ -19,19 +13,12 @@
 #define WIDTH_BEGIN 18
 #define HEIGHT_BEGIN 22
 
-
 typedef struct Bitmaps{
-
 
     unsigned long size;
     int width;
     int height;
     char* data;
-
-
-
-
-
 }Bitmap;
 
 
@@ -47,8 +34,6 @@ void decode();
 
 
 int main(){
-
-
 
     //Used a while loop for main menu. Keeps user in while loop until they input a 1 , 2 , or 3.
     int choice = 0;
@@ -70,7 +55,6 @@ int main(){
             printf("Enter the name of the clear text file you want to read from: \n");
             char clear_file_name[100];
             scanf("%s", clear_file_name);
-
             char* rand_key_name = "key.txt";
             printf("Randomized key file will be saved as key.txt. Please make sure there are no other files with this name. \n");
             char* cipher_file_name = "cipher.txt";
@@ -94,39 +78,26 @@ int main(){
             printf("Enter the name of the message file: ");
             char message_file[100];
             scanf("%s", message_file);
-
-
-
             printf("Enter the name of the bit map file: ");
             char bmp_file[100];
             scanf("%s", bmp_file);
-
             encode(message_file, bmp_file);
             printf("File saved as encoded.bmp");
-
             break;
 
-
     case 4:
-
             decode();
             printf("File saved as decoded.txt");
-
-
             break;
 
     case 5:
             exit(0);
             break;
-
-
     }
     return 0;
 }
 //read from a file function.
 char* read_file(unsigned long *size, char *file_name){
-
-
 
     FILE *file;
     file = fopen(file_name, "rb");
@@ -134,36 +105,16 @@ char* read_file(unsigned long *size, char *file_name){
         printf("Cannot open file \n");
 
     }
-
-
     fseek(file,0,SEEK_END);
-
-
-
-
     *size = (unsigned long)ftell(file);
-
-
-
-
     rewind(file);
-
     char* string = (char *)malloc((int)size+1);
         if(string == NULL){
 
             printf("memory alloc failed");
-
-
         }
-
-
-
-
     fread(string, (unsigned long)size, 1, file);
-
     fclose(file);
-
-
     return string;
 }
 //write to a file function
@@ -174,9 +125,6 @@ int file_write(unsigned long size, char *output, char *file_name2){
     if(file == NULL){
         printf("Cannot open file");
     }
-
-
-
     size = fwrite(output, 1, strlen(output), file);
 
     fclose(file);
@@ -208,22 +156,14 @@ void encrypt(char* clear, char* rand_key, char* cipher){
         if(rand_key_text == NULL){
 
             printf("memory alloc failed");
-
-
         }
-
         make_rand_key(size, rand_key_text);
-
         char* cipher_text;
         cipher_text = (char*)malloc(size+1);
         if(cipher_text == NULL){
 
             printf("memory alloc failed");
-
-
         }
-
-
         int x = 0;
         for(x; x < size ; x++){
             cipher_text[x] = (contents[x] ^ rand_key_text[x]);
@@ -240,36 +180,23 @@ void encrypt(char* clear, char* rand_key, char* cipher){
 }
 //decryption function
 void decrypt(char* clear, char* rand_key, char* cipher){
-
-
         unsigned long size;
         char* rand_key_text = read_file(&size, rand_key);
-
-
-
         char* cipher_text = read_file(&size, cipher);
         char* clear_text;
         clear_text = (char*)malloc(size+1);
         if(clear_text == NULL){
-
             printf("memory alloc failed");
-
-
         }
         int x;
         for(x = 0; x < size ; x++){
             clear_text[x] = (rand_key_text[x] ^ cipher_text[x]);
         }
-
         unsigned long size2;
-
-
         file_write(size2, clear_text , clear);
 }
 //There's an issue somewhere in my read_bmp function where it doesn't correctly copy the contents of the bitmapfile to the allocated char array. Haven't been able to figure it out. I believe the issue lies somewhere between my marked lines. But it gets the size just fine.
 Bitmap read_bmp(char* file_name){
-
-
 
     FILE *file;
     file = fopen(file_name, "rb");
@@ -277,133 +204,66 @@ Bitmap read_bmp(char* file_name){
         printf("Cannot open file \n");
 
     }
-
-
     fseek(file,0,SEEK_END);
     unsigned long size = (unsigned long)ftell(file);
-
-
-
-
     rewind(file);
     //-----------------------------------------------------------------------------------------------
 
     char* contents = (char*)malloc(size+1);
-
-
-
     if(contents == NULL){
-
             printf("memory alloc failed");
-
-
    }
-
-
-
-
-
     fread(contents, (unsigned long)size, 1, file);
-
-
     Bitmap m = {0, 0, 0 , contents};
-
 
 //-------------------------------------------------------------------------------------------------------
 
     free(contents);
-
-
-
-
-
     fseek(file, SIZE_BEGIN, SEEK_SET);
-
     fread(&m.size, 4, 1, file);
-
     fseek(file, WIDTH_BEGIN, SEEK_SET);
-
     fread(&m.width, 4, 1, file);
-
     fseek(file, HEIGHT_BEGIN, SEEK_SET);
-
-
     fread(&m.height, 4, 1, file);
-
-
     //m.size = *((int*)&(m.data[SIZE_BEGIN]));
     //m.width = *((int*)&(m.data[WIDTH_BEGIN]));
     //m.height = *((int *)&m.data[HEIGHT_BEGIN]);
-
     rewind(file);
     fclose(file);
-
-
-
-
-
     return m;
-
-
-
-
-
-
-
 }
 //create the bitmap file
 unsigned int write_bmp(Bitmap m, char* filename){
-
-
 
     FILE *file;
     file = fopen(filename, "wb");
     if(file == NULL){
         printf("Cannot open file");
-
     }
-
     //m.size = *((int*)&m.data[SIZE_BEGIN]);
     //m.width = *((int*)&m.data[WIDTH_BEGIN]);
     //m.height = *((int*)&m.data[HEIGHT_BEGIN]);
     int bytesWritten;
-
     //fwrite(m.size, 4, 1, file);
     //fwrite(m.width, 4, 1, file);
     //fwrite(m.height, 4, 1, file);
     bytesWritten = fwrite(m.data, m.size, 1, file);
     fclose(file);
-
     return bytesWritten;
-
 
 }
 //encode function
 void encode(char* filename, char* bitFileName){
-
-
-
      Bitmap m = read_bmp(bitFileName);
 
      unsigned long *size = (unsigned long*)malloc(4);
      if(size == NULL){
-
             printf("memory alloc failed");
-
-
         }
-
 
      char* message = read_file(size, filename);
      printf("\n message is: %s \n", message);
-
-
-
      printf("size is %d", *size);
-
-
-
-
      //Write message length in first 32 chars of bmp
      int bmp_cnt;
      unsigned long msg_size_2 = (unsigned long)size;
@@ -435,19 +295,13 @@ void encode(char* filename, char* bitFileName){
                 message[x] << 1; //left shift the current char in message in order to test the next bit of the char
             }
         }
-
         write_bmp(m, "encoded.bmp");//create the bitmap file
         printf("\n data: %s", m.data);
-
-
 
 }
 
 //decode function
 void decode(){
-
-
-
     Bitmap m = read_bmp("encoded.bmp");
     int x;
     int message_length = 0;
@@ -459,10 +313,7 @@ void decode(){
     }
     char* message = (char*)malloc(message_length+1);
     if(message == NULL){
-
             printf("memory alloc failed");
-
-
     }
     int y;
     int j;
@@ -482,14 +333,9 @@ void decode(){
     }
 
     unsigned long size;
-
     file_write(size, message, "decoded.txt"); //creating the txt file containing the decoded message
-
     free(message);
 
 
-
-
 }
-
 
